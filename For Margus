@@ -1,0 +1,75 @@
+#Aleksander Krutikhin
+#IT-21V
+#05.06.2022
+import psutil
+import requests
+import json
+
+DISK = "C: "
+RAM = "RAM: "
+
+#1. Free memory on Disk.
+
+DISK = "C:"
+free = psutil.disk_usage(DISK).free/(1024*1024*1024)
+print(f"{free:.4} Gb free on disk {DISK}")
+
+#2. Total memory on Disk.
+
+total = psutil.disk_usage(DISK).total/(1024*1024*1024)
+print(f"{total:.4} Gb total on disk {DISK}")
+
+#3. Free RAM.
+
+free = psutil.virtual_memory().free/(1024*1024*1024)
+print(f"{free:.4} GB free {RAM}")
+
+#4. Total RAM.
+
+RAM = "RAM:"
+total = psutil.virtual_memory().total/(1024*1024*1024)
+print(f"{total:.4} GB total {RAM}")
+
+#5. Warning if memory more than 20%
+
+if(psutil.virtual_memory()[2] > 20):
+    print("RAM used more than 20%")
+
+if(psutil.disk_usage(DISK)[2] > 20):
+    print("Disk used more than 20%")
+
+#6. Weather in Tallinn.
+
+api_key = "897f927cfdad29e6c525c6b169427c26"
+base_url = "http://api.openweathermap.org/data/2.5/weather?"
+def get_city_data(city_name):
+    complete_url = base_url + "appid=" + api_key + "&q=" + city_name
+    response = requests.get(complete_url)
+    return response.json()
+
+cities = ["Tallinn"]
+
+def get_coord(d):
+    return d["coord"]["lon"], d["coord"]["lat"]
+
+for city in cities:
+    x = get_city_data(city)
+    if x["cod"] != "404":
+        y = x["main"]
+        current_temperature = y["temp"]
+        current_humidity = y["humidity"]
+        current_wind = x["wind"]
+        get_cord = x["coord"]
+        print(" City name = " +
+                     str(city) +
+              "\n temperature (in kelvin unit) = " +
+                     str(current_temperature) +
+              "\n humidity (in percentage) = " +
+                     str(current_humidity) +
+              "\n wind = " +
+                     str(current_wind))
+
+#7. Output in text.txt file.
+        
+with open('text.txt', 'w') as file:
+    file.write(f"{free:.4} Gb free on disk {DISK}\n" + f"{total:.4} Gb total on disk {DISK}\n" + f"{free:.4} GB free {RAM}\n" + f"{total:.4} GB total {RAM}\n" + " City name = " + str(city) + "\n temperature (in kelvin unit) = " + str(current_temperature) + "\n humidity (in percentage) = " + str(current_humidity) + "\n wind = " + str(current_wind))
